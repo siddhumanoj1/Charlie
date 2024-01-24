@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charlie the Chatbot</title>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="chat"></div>
+    <input type="text" id="user-input" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    const apiKey = 'YOUR_OPENAI_API_KEY';
+    let chatHistory = '';
+
+    function sendMessage() {
+      const userMessage = document.getElementById('user-input').value;
+      appendMessage('user', userMessage);
+
+      // Call OpenAI API for natural language processing
+      axios.post('https://api.openai.com/v1/engines/davinci-codex/completions', {
+        prompt: `Charlie, ${userMessage}`,
+        max_tokens: 100
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        }
+      })
+      .then(response => {
+        const charlieResponse = response.data.choices[0].text.trim();
+        appendMessage('charlie', charlieResponse);
+      })
+      .catch(error => console.error(error));
+    }
+
+    function appendMessage(sender, message) {
+      const chat = document.getElementById('chat');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add(sender);
+      messageElement.textContent = message;
+      chat.appendChild(messageElement);
+
+      // Scroll to the bottom of the chat
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
